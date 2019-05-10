@@ -1,0 +1,122 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "This stack will create a S3 bucket that can be used as a temporary public network storage with a self-destruct mechanism to delete object after a set period of time.",
+	"Parameters": {
+		"DataRestingPlace": {
+			"Description": "The S3 bucket name where you want to store your data.",
+			"Type": "String"
+		},
+		"ExpiersIn": {
+			"Description": "Set after how many days the object should be automatically deleted.",
+			"Type": "Number"
+		}
+	},
+	"Resources": {
+		"S3DriveSelfdestruct": {
+			"Type": "AWS::S3::Bucket",
+			"Properties": {
+				"BucketName": {
+					"Fn::Sub": "${DataRestingPlace}"
+				},
+				"PublicAccessBlockConfiguration": {
+					"BlockPublicAcls": false,
+					"BlockPublicPolicy": false,
+					"IgnorePublicAcls": false,
+					"RestrictPublicBuckets": false
+				},
+				"LifecycleConfiguration": {
+					"Rules": [
+						{
+							"Id": {
+								"Fn::Sub": "${ExpiersIn}Day(s)"
+							},
+							"ExpirationInDays": {
+								"Fn::Sub": "${ExpiersIn}"
+							},
+							"Status": "Enabled"
+						}
+					]
+				},
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "S3 Drive Self-destruct"
+					},
+					{
+						"Key": "Source",
+						"Value": "0x4447 LLC"
+					},
+					{
+						"Key": "Info",
+						"Value": "https://0x4447.com"
+					}
+				]
+			}
+		},
+		"IAMGroup": {
+			"Type": "AWS::IAM::Group",
+			"Properties": {
+				"GroupName": "0x4447_s3_drive_self_destruct",
+				"Policies": [
+					{
+						"PolicyName": "l_r_w_d_plus_rename",
+						"PolicyDocument": {
+							"Version": "2012-10-17",
+							"Statement": [
+								{
+									"Effect": "Allow",
+									"Action": [
+										"s3:ListBucket",
+										"s3:GetObject",
+										"s3:PutObject",
+										"s3:DeleteObject",
+										"s3:GetObjectAcl",
+										"s3:GetObjectVersionAcl",
+										"s3:PutObjectAcl",
+										"s3:PutObjectVersionAcl"
+									],
+									"Resource": [
+										{
+											"Fn::Sub": "arn:aws:s3:::${S3DriveSelfdestruct}"
+										},
+										{
+											"Fn::Sub": "arn:aws:s3:::${S3DriveSelfdestruct}/*"
+										}
+									]
+								},
+								{
+									"Effect": "Allow",
+									"Action": "s3:ListAllMyBuckets",
+									"Resource": "*"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		"S3DriveSelfdestructPolicy": {
+			"Type": "AWS::S3::BucketPolicy",
+			"Properties": {
+				"Bucket": {
+					"Fn::Sub": "${S3DriveSelfdestruct}"
+				},
+				"PolicyDocument": {
+					"Version": "2008-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Principal": {
+								"AWS": "*"
+							},
+							"Action": "s3:GetObject",
+							"Resource": {
+								"Fn::Sub": "arn:aws:s3:::${S3DriveSelfdestruct}/*"
+							}
+						}
+					]
+				}
+			}
+		}
+	}
+}

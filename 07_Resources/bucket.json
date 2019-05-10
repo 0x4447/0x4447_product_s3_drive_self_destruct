@@ -1,0 +1,35 @@
+{
+	"S3DriveSelfdestruct": {
+		"Type": "AWS::S3::Bucket",
+		"Properties": {
+			"BucketName": { "Fn::Sub": "${DataRestingPlace}" },
+			"PublicAccessBlockConfiguration": {
+				"BlockPublicAcls": false,
+				"BlockPublicPolicy": false,
+				"IgnorePublicAcls": false,
+				"RestrictPublicBuckets": false
+			},
+			"LifecycleConfiguration": {
+				"Rules": [{
+					"Id": { "Fn::Sub": "${ExpiersIn}Day(s)" },
+					"ExpirationInDays": { "Fn::Sub": "${ExpiersIn}" },
+					"Status": "Enabled"
+				}]
+			},
+			"Tags": [
+				{
+					"Key" : "Name",
+					"Value" : "S3 Drive Self-destruct"
+				},
+				{
+					"Key" : "Source",
+					"Value" : "0x4447 LLC"
+				},
+				{
+					"Key" : "Info",
+					"Value" : "https://0x4447.com"
+				}
+			]
+		}
+	}
+}

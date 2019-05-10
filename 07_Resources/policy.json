@@ -1,0 +1,21 @@
+{
+	"S3DriveSelfdestructPolicy": {
+		"Type": "AWS::S3::BucketPolicy",
+		"Properties": {
+			"Bucket": { "Fn::Sub": "${S3DriveSelfdestruct}"},
+			"PolicyDocument": {
+				"Version": "2008-10-17",
+				"Statement": [
+					{
+						"Effect": "Allow",
+						"Principal": {
+							"AWS": "*"
+						},
+						"Action": "s3:GetObject",
+						"Resource": { "Fn::Sub": "arn:aws:s3:::${S3DriveSelfdestruct}/*"}
+					}
+				]
+			}
+		}
+	}
+}

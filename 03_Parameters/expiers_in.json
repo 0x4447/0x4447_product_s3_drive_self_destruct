@@ -1,0 +1,6 @@
+{
+	"ExpiersIn": {
+		"Description": "Set after how many days the object should be automatically deleted.",
+		"Type": "Number"
+	}
+}
